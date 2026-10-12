@@ -1,0 +1,12 @@
+[package]
+name = "fm-dlp-core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+futures = "0.3.34"
+home = "0.5.12"
+serde = { version = "1.0.229", features = ["derive"] }
+tokio = { version = "1.53.1", features = ["full"] }
+toml = "1.1.3"
+ytdown = "0.8.1"
