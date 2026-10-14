@@ -18,6 +18,7 @@ impl Download {
         let yt = Ytdown::builder().build()?;
         for url in UrlParser::new(self.params.urls, self.params.quiet) {
             let info = yt.resolve(url);
+            //...
         }
         Ok(())
     }
