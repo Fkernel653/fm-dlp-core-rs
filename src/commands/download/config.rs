@@ -1,5 +1,4 @@
-use crate::commands::download::params::DownloadParams;
-use crate::config::parameters::ParametersManager;
+use crate::{commands::download::params::DownloadParams, config::parameters::ParametersManager};
 use toml::{Value, map::Map};
 
 pub struct DownloadConfig {

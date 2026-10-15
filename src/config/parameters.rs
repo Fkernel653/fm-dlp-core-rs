@@ -1,9 +1,11 @@
 use std::error::Error;
 use toml::{Value, map::Map};
 
-use crate::colors::success;
-use crate::commands::download::params::DownloadParams;
-use crate::config::{config_manager::ConfigManager, params::ConfigParams};
+use crate::{
+    colors::success,
+    commands::download::params::DownloadParams,
+    config::{config_manager::ConfigManager, params::ConfigParams},
+};
 
 pub struct ParametersManager {
     pub params: ConfigParams,

@@ -1,7 +1,9 @@
 use std::path::Path;
 
-use crate::colors::{error, info};
-use crate::commands::download::params::Param;
+use crate::{
+    colors::{error, info},
+    commands::download::params::Param,
+};
 
 pub struct UrlParser {
     urls: String,
