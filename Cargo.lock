@@ -476,7 +476,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "fm-dlp-core"
+name = "fm-dlp-core-rs"
 version = "0.1.0"
 dependencies = [
  "futures",
