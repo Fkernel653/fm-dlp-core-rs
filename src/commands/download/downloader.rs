@@ -16,8 +16,10 @@ pub struct Download {
 impl Download {
     async fn _download(&self) -> ytdown::Result<()> {
         let yt = Ytdown::builder().build()?;
-        for (k, v) in UrlParser::new(self.params.urls, self.params.quiet).into_iter() {
-            let info = yt.resolve(k);
+        let parser = UrlParser::new(self.params.urls.clone(), self.params.quiet);
+
+        for url in parser.parse() {
+            let info = yt.resolve(&url);
             // ...
         }
         Ok(())

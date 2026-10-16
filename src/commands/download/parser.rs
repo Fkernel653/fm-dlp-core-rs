@@ -1,9 +1,6 @@
 use std::path::Path;
 
-use crate::{
-    colors::{error, info},
-    commands::download::params::Param,
-};
+use crate::colors::{error, info};
 
 pub struct UrlParser {
     urls: String,
@@ -68,18 +65,5 @@ impl UrlParser {
         }
 
         urls
-    }
-}
-
-impl<'a> IntoIterator for &'a UrlParser {
-    type Item = (&'static str, Param<'a>);
-    type IntoIter = std::vec::IntoIter<Self::Item>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        let v: Vec<(&'static str, Param<'a>)> = vec![
-            ("urls", Param::Str(&self.urls)),
-            ("quiet", Param::Bool(self.quiet)),
-        ];
-        v.into_iter()
     }
 }
