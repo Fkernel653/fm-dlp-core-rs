@@ -1,8 +1,10 @@
-use std::collections::HashMap;
-use ytdown::Ytdown;
+use futures::{StreamExt, executor::Enter};
+use std::{collections::HashMap, path::Path};
+use ytdown::{MediaInfo, Ytdown};
 
-use crate::commands::download::{
-    config::DownloadConfig, params::DownloadParams, parser::UrlParser,
+use crate::{
+    colors::error,
+    commands::download::{config::DownloadConfig, params::DownloadParams, parser::UrlParser},
 };
 
 pub const AUDIO_CODECS: [&str; 7] = ["mp3", "aac", "flac", "m4a", "opus", "vorbis", "wav"];
@@ -14,14 +16,37 @@ pub struct Download {
 }
 
 impl Download {
-    async fn _download(&self) -> ytdown::Result<()> {
+    async fn _download_url(&self) -> ytdown::Result<()> {
         let yt = Ytdown::builder().build()?;
         let parser = UrlParser::new(self.params.urls.clone(), self.params.quiet);
 
         for url in parser.parse() {
-            let info = yt.resolve(&url);
-            // ...
+            let info = yt.resolve(&url).await?;
+
+            match info {
+                MediaInfo::Single(video) => {
+                    let title = video.title.clone();
+                    let fmt = video.formats().best_progressive()?;
+                    yt.download(fmt, Path::new(&title)).await?;
+                }
+
+                MediaInfo::Collection(mut col) => {
+                    while let Some(entry) = col.entries.next().await {
+                        let entry = entry?;
+
+                        if let MediaInfo::Single(video) = entry {
+                            let Some(title) = &video.title else {
+                                eprintln!("{}", error("No title found for video!"));
+                                continue;
+                            };
+                            let fmt = video.formats().best_progressive()?;
+                            yt.download(fmt, Path::new(title)).await?;
+                        }
+                    }
+                }
+            }
         }
+
         Ok(())
     }
 
