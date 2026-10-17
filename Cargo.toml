@@ -2,6 +2,9 @@
 name = "fm-dlp-core-rs"
 version = "0.1.0"
 edition = "2024"
+license = "AGPL-3.0-only"
+repository = "https://github.com/Fkernel653/fm-dlp-core-rs"
+readme = "README.md"
 
 [dependencies]
 futures = "0.3.34"
