@@ -16,7 +16,6 @@ pub struct DownloadParams {
     pub path: Option<String>,
     pub only_video: bool,
     pub color: bool,
-    pub progress: bool,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ffmpeg_path: Option<String>,
@@ -52,7 +51,6 @@ impl<'a> IntoIterator for &'a DownloadParams {
             ("use_config", Param::Bool(self.use_config)),
             ("only_video", Param::Bool(self.only_video)),
             ("color", Param::Bool(self.color)),
-            ("progress", Param::Bool(self.progress)),
         ];
 
         if let Some(config_file) = &self.config_file {
