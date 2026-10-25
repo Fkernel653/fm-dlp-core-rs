@@ -1,4 +1,7 @@
-use crate::{commands::download::params::DownloadParams, config::parameters::ParametersManager};
+use crate::{
+    colors::error, commands::download::params::DownloadParams,
+    config::parameters::ParametersManager,
+};
 use toml::{Value, map::Map};
 
 pub struct DownloadConfig {
@@ -18,7 +21,7 @@ impl DownloadConfig {
                     }
                 }
                 Err(e) => {
-                    eprintln!("Failed to load config: {e}");
+                    eprintln!("{}", error(&format!("Failed to load config: {e}")));
                 }
             }
         }

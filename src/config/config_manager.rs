@@ -1,4 +1,7 @@
-use crate::{colors::success, config::params::ConfigParams};
+use crate::{
+    colors::{error, success},
+    config::params::ConfigParams,
+};
 use serde::{Deserialize, Serialize};
 use std::{error::Error, fs, path::PathBuf};
 use toml::{Value, map::Map};
@@ -61,7 +64,7 @@ impl ConfigManager {
                 color: true,
                 config_file: ConfigDir::new()
                     .path()
-                    .expect("failed to determine config directory"),
+                    .expect(&error("failed to determine config directory")),
             },
             encoding: "utf-8".to_string(),
             extra: Map::new(),
