@@ -1,12 +1,12 @@
-use futures::StreamExt;
+use futures::stream::{self, StreamExt};
 use std::{collections::HashMap, path::Path};
-use ytdown::{MediaInfo, Ytdown};
+use ytdown::{MediaInfo, VideoInfo, Ytdown};
 
 use crate::commands::download::{
     config::DownloadConfig, params::DownloadParams, parser::UrlParser,
 };
 
-pub const AUDIO_CODECS: [&str; 7] = ["mp3", "aac", "flac", "m4a", "opus", "vorbis", "wav"];
+pub const AUDIO_CODECS: [&str; 8] = ["mp3", "aac", "flac", "m4a", "opus", "vorbis", "wav", "alac"];
 pub const VIDEO_CONTAINERS: [&str; 6] = ["mp4", "mov", "mkv", "webm", "avi", "flv"];
 
 pub struct Download {
@@ -15,33 +15,42 @@ pub struct Download {
 }
 
 impl Download {
-    async fn _download_url(&self) -> ytdown::Result<()> {
+    async fn _download_one(yt: &Ytdown, video: VideoInfo) -> ytdown::Result<()> {
+        let title = video.title.clone();
+        let fmt = video.formats().best_progressive()?;
+        yt.download(fmt, Path::new(&title)).await?;
+        Ok(())
+    }
+
+    pub async fn download(&self) -> ytdown::Result<()> {
         let yt = Ytdown::builder().build()?;
         let parser = UrlParser::new(self.params.urls.clone(), self.params.quiet);
 
+        let mut videos = Vec::new();
+
         for url in parser.parse() {
             let info = yt.resolve(&url).await?;
-
             match info {
                 MediaInfo::Collection(mut col) => {
                     while let Some(entry) = col.entries.next().await {
                         let entry = entry?;
-                        let info = yt.resolve(&entry.url).await?;
-
-                        if let MediaInfo::Single(video) = info {
-                            let title = &video.title.clone();
-                            let fmt = video.formats().best_progressive()?;
-                            yt.download(fmt, Path::new(&title)).await?;
+                        if let MediaInfo::Single(video) = yt.resolve(&entry.url).await? {
+                            videos.push(video);
                         }
                     }
                 }
-                MediaInfo::Single(video) => {
-                    let title = video.title.clone();
-                    let fmt = video.formats().best_progressive()?;
-                    yt.download(fmt, Path::new(&title)).await?;
-                }
+                MediaInfo::Single(video) => videos.push(video),
             }
         }
+        stream::iter(videos)
+            .map(|video| Self::_download_one(&yt, video))
+            .buffer_unordered(3)
+            .for_each(|res| async move {
+                if let Err(e) = res {
+                    eprintln!("Download error: {e}");
+                }
+            })
+            .await;
 
         Ok(())
     }
