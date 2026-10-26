@@ -1,15 +1,16 @@
 use std::path::Path;
 
-use crate::colors::{error, info};
+use crate::colors::{error, info, set_colors};
 
 pub struct UrlParser {
     urls: String,
     quiet: bool,
+    color: bool,
 }
 
 impl UrlParser {
-    pub fn new(urls: String, quiet: bool) -> Self {
-        Self { urls, quiet }
+    pub fn new(urls: String, quiet: bool, color: bool) -> Self {
+        Self { urls, quiet, color }
     }
 
     pub fn parse(&self) -> Vec<String> {
@@ -31,6 +32,8 @@ impl UrlParser {
     }
 
     fn parse_url_file(&self, file_path: &Path) -> Vec<String> {
+        set_colors(self.color);
+
         let content = match std::fs::read_to_string(file_path) {
             Ok(c) => c,
             Err(e) => {
