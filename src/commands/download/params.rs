@@ -21,6 +21,9 @@ pub struct DownloadParams {
     pub ffmpeg_path: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub yt_dlp_path: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub cookies: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
