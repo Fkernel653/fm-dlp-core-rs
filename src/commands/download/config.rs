@@ -1,5 +1,6 @@
 use crate::{
-    colors::error, commands::download::params::DownloadParams,
+    colors::{error, set_colors},
+    commands::download::params::DownloadParams,
     config::parameters::ParametersManager,
 };
 use toml::{Value, map::Map};
@@ -11,6 +12,7 @@ pub struct DownloadConfig {
 
 impl DownloadConfig {
     pub fn apply_config(&self) -> Map<String, Value> {
+        set_colors(self.params.color);
         let mut result = Map::new();
 
         if self.params.use_config {
