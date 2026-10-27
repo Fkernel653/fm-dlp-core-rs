@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{any::Any, collections::HashMap, path::PathBuf};
 
 use toml::{Value, map::Map};
 
@@ -32,7 +32,7 @@ impl OptionsBuilder {
         }
     }
 
-    //pub fn build(&self) -> <Vec<(&'static str, String)>> {}
+    //pub fn build(&self) -> <HashMap<&'static str, Any>> {}
 
     pub fn parse_quality(&self) -> String {
         let q = self.applied["quality"].to_string();
@@ -48,6 +48,27 @@ impl OptionsBuilder {
             return format!("bestvideo[height<={sliced}]");
         } else {
             return q;
+        }
+    }
+
+    pub fn add_cookies(&self, mut opts: HashMap<&'static str, Box<dyn Any>>) {
+        let Some(cookies) = self.applied.get("cookies") else {
+            return;
+        };
+        let Some(c) = cookies.as_str() else {
+            return;
+        };
+        if c.is_empty() {
+            return;
+        }
+        let c_path = PathBuf::from(c);
+
+        let v = Box::new(c_path.to_string_lossy().into_owned());
+
+        if c_path.is_file() {
+            opts.insert("cookiefile", v);
+        } else {
+            opts.insert("cookiesfrombrowser", v);
         }
     }
 }
