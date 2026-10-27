@@ -11,8 +11,20 @@ pub struct DownloadConfig {
 }
 
 impl DownloadConfig {
+    pub fn save_config(&self) -> bool {
+        if self.params.save {
+            match self.parameters_manager.set_parameters(&self.params) {
+                Ok(_) => true,
+                Err(e) => {
+                    set_colors(self.params.color);
+                    panic!("{}", error(&format!("Failed to save config: {e}")))
+                }
+            }
+        } else {
+            false
+        }
+    }
     pub fn apply_config(&self) -> Map<String, Value> {
-        set_colors(self.params.color);
         let mut result = Map::new();
 
         if self.params.use_config {
@@ -23,7 +35,8 @@ impl DownloadConfig {
                     }
                 }
                 Err(e) => {
-                    eprintln!("{}", error(&format!("Failed to load config: {e}")));
+                    set_colors(self.params.color);
+                    panic!("{}", error(&format!("Failed to load config: {e}")));
                 }
             }
         }
