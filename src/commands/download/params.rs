@@ -65,6 +65,9 @@ impl<'a> IntoIterator for &'a DownloadParams {
         if let Some(ffmpeg_path) = &self.ffmpeg_path {
             v.push(("ffmpeg_path", Param::Str(ffmpeg_path)));
         }
+        if let Some(yt_dlp_path) = &self.yt_dlp_path {
+            v.push(("yt_dlp_path", Param::Str(yt_dlp_path)));
+        }
         if let Some(cookies) = &self.cookies {
             v.push(("cookies", Param::Str(cookies)));
         }
