@@ -3,9 +3,9 @@ use std::path::Path;
 use crate::colors::{error, info, set_colors};
 
 pub struct UrlParser {
-    urls: String,
-    quiet: bool,
-    color: bool,
+    pub urls: String,
+    pub quiet: bool,
+    pub color: bool,
 }
 
 impl UrlParser {
@@ -37,8 +37,7 @@ impl UrlParser {
         let content = match std::fs::read_to_string(file_path) {
             Ok(c) => c,
             Err(e) => {
-                eprintln!("{}", error(&format!("Error reading URL file: {}", e)));
-                std::process::exit(1);
+                panic!("{}", error(&format!("Failed to read URL file: {e}")));
             }
         };
 
