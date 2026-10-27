@@ -2,7 +2,7 @@ use std::error::Error;
 use toml::{Value, map::Map};
 
 use crate::{
-    colors::success,
+    colors::{set_colors, success},
     commands::download::params::DownloadParams,
     config::{config_manager::ConfigManager, params::ConfigParams},
 };
@@ -30,6 +30,7 @@ impl ParametersManager {
         self.config_manager.update_config(&config)?;
 
         if !self.params.quiet {
+            set_colors(config["color"].as_bool().unwrap_or(params.color));
             println!("{}", success("Parameters have been successfully saved"))
         }
         Ok(())

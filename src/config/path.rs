@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use crate::{
-    colors::{error, success},
+    colors::{error, set_colors, success},
     config::{
         config_manager::{ConfigDir, ConfigManager},
         params::ConfigParams,
@@ -15,12 +15,12 @@ pub struct PathManager {
 }
 
 impl PathManager {
-    pub fn set_path(&self, path: String) {
+    pub fn set_path(&self, path: String) -> bool {
+        set_colors(self.params.color);
         let input_path = PathBuf::from(&path);
 
         if !input_path.is_dir() {
-            eprintln!("{}", error("Please enter the correct path!"));
-            return;
+            panic!("{}", error("Please enter the correct path!"));
         }
 
         match self.config_manager.load_config() {
@@ -31,29 +31,29 @@ impl PathManager {
                     Ok(_) => {
                         if !self.params.quiet {
                             println!("{}", success("Path saved successfully"));
-                            return;
                         }
+                        true
                     }
                     Err(e) => {
-                        eprintln!("{}", error(&format!("Failed to save config: {}", e)));
-                        return;
+                        panic!("{}", error(&format!("Failed to save config: {e}")));
                     }
                 }
             }
             Err(e) => {
-                eprintln!("{}", error(&format!("Failed to load config: {}", e)));
-                return;
+                panic!("{}", error(&format!("Failed to load config: {e}")));
             }
         }
     }
 
     pub fn get_path(&self) -> PathBuf {
+        let home = ConfigDir::home_dir().unwrap_or_else(|_| PathBuf::from("."));
+
         match self.config_manager.load_config() {
             Ok(map) => match map.get(&self.path_key) {
                 Some(toml::Value::String(s)) => PathBuf::from(s),
-                _ => ConfigDir::home_dir().unwrap_or_else(|_| PathBuf::from(".")),
+                _ => home,
             },
-            Err(_) => ConfigDir::home_dir().unwrap_or_else(|_| PathBuf::from(".")),
+            Err(_) => home,
         }
     }
 }
