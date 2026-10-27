@@ -8,9 +8,9 @@ use crate::{
 };
 
 pub struct OptionsBuilder {
-    params: DownloadParams,
-    applied: Map<String, Value>,
-    yt_dlp: PathBuf,
+    pub params: DownloadParams,
+    pub applied: Map<String, Value>,
+    pub yt_dlp: PathBuf,
 }
 
 impl OptionsBuilder {
@@ -20,8 +20,8 @@ impl OptionsBuilder {
         let yt_dlp = match which::which("yt-dlp") {
             Ok(path) => path,
             Err(_) => {
-                eprintln!("{}", error("yt-dlp not found in PATH!"));
-                PathBuf::from(applied["yt_dlp"].to_string())
+                eprintln!("{}", error("Failed to find yt-dlp in PATH!"));
+                PathBuf::from(applied["yt_dlp_path"].to_string())
             }
         };
 
@@ -32,9 +32,9 @@ impl OptionsBuilder {
         }
     }
 
-    //pub fn build(&self) -> <Vec<String, String>> {}
+    //pub fn build(&self) -> <Vec<(&'static str, String)>> {}
 
-    fn parse_quality(&self) -> String {
+    pub fn parse_quality(&self) -> String {
         let q = self.applied["quality"].to_string();
         let sliced = &q[..q.len() - 1];
 
