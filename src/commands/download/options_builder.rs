@@ -3,36 +3,22 @@ use std::{any::Any, collections::HashMap, path::PathBuf};
 use toml::{Value, map::Map};
 
 use crate::{
-    colors::{error, set_colors},
+    colors::set_colors,
     commands::download::{config::DownloadConfig, params::DownloadParams},
 };
 
 pub struct OptionsBuilder {
     pub params: DownloadParams,
     pub applied: Map<String, Value>,
-    pub yt_dlp: PathBuf,
 }
 
 impl OptionsBuilder {
     pub fn new(params: DownloadParams, config: DownloadConfig) -> Self {
         let applied = config.apply_config();
         set_colors(applied["color"].as_bool().unwrap_or(params.color));
-        let yt_dlp = match which::which("yt-dlp") {
-            Ok(path) => path,
-            Err(_) => {
-                eprintln!("{}", error("Failed to find yt-dlp in PATH!"));
-                PathBuf::from(applied["yt_dlp_path"].to_string())
-            }
-        };
 
-        Self {
-            params,
-            applied,
-            yt_dlp,
-        }
+        Self { params, applied }
     }
-
-    //pub fn build(&self) -> <HashMap<&'static str, Any>> {}
 
     pub fn parse_quality(&self) -> String {
         let q = self.applied["quality"].to_string();
