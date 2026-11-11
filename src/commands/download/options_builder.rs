@@ -57,4 +57,28 @@ impl OptionsBuilder {
             opts.insert("cookiesfrombrowser", v);
         }
     }
+
+    pub fn add_subtitles(&self, mut opts: HashMap<&'static str, Box<dyn Any>>) {
+        let Some(_) = self.applied.get("auto_subs") else {
+            return;
+        };
+        let Some(_) = self.applied.get("subtitles") else {
+            return;
+        };
+
+        let l: Box<String> = Box::new(
+            self.applied["subtitle_langs"]
+                .to_string()
+                .split(',')
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .map(String::from)
+                .collect(),
+        );
+        let auto = Box::new(self.applied["auto_subs"].as_bool().unwrap_or(false));
+
+        opts.insert("writesubtitles", Box::new(true));
+        opts.insert("subtitleslangs", l);
+        opts.insert("writeautomaticsub", auto);
+    }
 }
