@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DownloadParams {
@@ -17,6 +18,14 @@ pub struct DownloadParams {
     pub only_video: bool,
     pub color: bool,
 
+    pub subtitles: bool,
+    pub embed_subs: bool,
+    pub auto_subs: bool,
+    pub ytdlp_args: Option<HashMap<String, serde_json::Value>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subtitle_langs: Option<String>,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ffmpeg_path: Option<String>,
 
@@ -31,6 +40,7 @@ pub enum Param<'a> {
     Str(&'a str),
     Int(u32),
     Bool(bool),
+    Json(&'a serde_json::Value),
 }
 
 impl<'a> IntoIterator for &'a DownloadParams {
@@ -51,6 +61,9 @@ impl<'a> IntoIterator for &'a DownloadParams {
             ("use_config", Param::Bool(self.use_config)),
             ("only_video", Param::Bool(self.only_video)),
             ("color", Param::Bool(self.color)),
+            ("subtitles", Param::Bool(self.subtitles)),
+            ("embed_subs", Param::Bool(self.embed_subs)),
+            ("auto_subs", Param::Bool(self.auto_subs)),
         ];
 
         if let Some(config_file) = &self.config_file {
@@ -58,6 +71,9 @@ impl<'a> IntoIterator for &'a DownloadParams {
         }
         if let Some(path) = &self.path {
             v.push(("path", Param::Str(path)));
+        }
+        if let Some(subtitle_langs) = &self.subtitle_langs {
+            v.push(("subtitle_langs", Param::Str(subtitle_langs)));
         }
         if let Some(ffmpeg_path) = &self.ffmpeg_path {
             v.push(("ffmpeg_path", Param::Str(ffmpeg_path)));
