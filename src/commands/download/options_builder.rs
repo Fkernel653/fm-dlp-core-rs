@@ -1,11 +1,9 @@
-use std::{any::Any, collections::HashMap, path::PathBuf};
-
-use toml::{Value, map::Map};
-
 use crate::{
     colors::set_colors,
     commands::download::{config::DownloadConfig, params::DownloadParams},
 };
+use std::{any::Any, collections::HashMap, path::PathBuf};
+use toml::{Value, map::Map};
 
 pub struct OptionsBuilder {
     pub params: DownloadParams,
@@ -59,26 +57,34 @@ impl OptionsBuilder {
     }
 
     pub fn add_subtitles(&self, mut opts: HashMap<&'static str, Box<dyn Any>>) {
-        let Some(_) = self.applied.get("auto_subs") else {
+        let auto = self.applied["auto_subs"]
+            .as_bool()
+            .unwrap_or(self.params.auto_subs);
+        if auto {
+            opts.insert("writeautomaticsub", Box::new(auto));
             return;
-        };
-        let Some(_) = self.applied.get("subtitles") else {
-            return;
-        };
+        }
 
-        let l: Box<String> = Box::new(
-            self.applied["subtitle_langs"]
-                .to_string()
+        let sub = self.applied["subtitles"]
+            .as_bool()
+            .unwrap_or(self.params.subtitles);
+        if sub {
+            let langs: Vec<String> = self.applied["subtitle_langs"]
+                .as_str()
+                .unwrap_or("")
                 .split(',')
                 .map(str::trim)
                 .filter(|s| !s.is_empty())
                 .map(String::from)
-                .collect(),
-        );
-        let auto = Box::new(self.applied["auto_subs"].as_bool().unwrap_or(false));
+                .collect();
 
-        opts.insert("writesubtitles", Box::new(true));
-        opts.insert("subtitleslangs", l);
-        opts.insert("writeautomaticsub", auto);
+            opts.insert("writesubtitles", Box::new(true));
+            opts.insert("subtitleslangs", Box::new(langs));
+
+            if self.applied["embed_subs"]
+                .as_bool()
+                .unwrap_or(self.params.embed_subs)
+            {}
+        };
     }
 }
